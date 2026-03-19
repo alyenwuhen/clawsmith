@@ -1,0 +1,11 @@
+{
+  "name": "clawsmith",
+  "version": "0.1.0",
+  "description": "LangSmith-style observability plugin for OpenClaw",
+  "type": "module",
+  "main": "src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "selftest": "node ./test/selftest.mjs"
+  }
+}
