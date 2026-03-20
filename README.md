@@ -25,6 +25,16 @@ It focuses on **monitoring and tracing**, not evaluation.
 
 ## Features
 
+### Auto-start on install
+
+Install `clawsmith`, and it immediately starts the monitoring daemon.
+
+```bash
+npm install -g clawsmith
+```
+
+After installation, the `clawsmith` executable is available on your PATH through the package `bin` field, and npm runs the package install lifecycle for global installs as well. citeturn120983search2turn132199search4
+
 ### Daemon control
 
 ```bash
@@ -89,23 +99,25 @@ clawsmith selftest
 
 ## Quick Start
 
-### Install as a skill bundle
-
-Put the `clawsmith` folder into your OpenClaw `skills` directory. This package is designed as a **skill bundle with a built-in CLI**.
-
-After installation, the user should only need a single command surface:
+### Install globally
 
 ```bash
-clawsmith start
-clawsmith status
+npm install -g clawsmith
 ```
 
-### First run
+That does three things:
+1. installs the `clawsmith` command
+2. runs `postinstall`
+3. auto-starts the daemon
+
+The daemon performs an immediate scan on boot, so monitoring starts right after installation.
+
+### First commands
 
 ```bash
-clawsmith selftest
-clawsmith start
 clawsmith status
+clawsmith session --list
+clawsmith config --diag
 ```
 
 ---
@@ -114,12 +126,12 @@ clawsmith status
 
 `clawsmith` works in two layers:
 
-1. **Skill bundle layer**
-   - `SKILL.md` tells the agent how to operate `clawsmith`
-   - the bundle ships its own CLI and helper scripts
+1. **CLI layer**
+   - the `clawsmith` executable dispatches all commands
+   - npm exposes it via the `bin` field on global install citeturn120983search2
 
 2. **Local observability layer**
-   - scans `~/.openclaw/agents/**`
+   - the daemon scans `~/.openclaw/agents/**`
    - reads `sessions.json` and transcript `.jsonl` files
    - writes health and trace snapshots into `~/.clawsmith/`
 
@@ -146,6 +158,8 @@ clawsmith status
 ### Boundary
 
 This build is **file-observability based**. It is easier to deploy than a runtime-hook plugin, but exact per-tool spans and exact prompt capture require in-process instrumentation.
+
+npm no longer supports uninstall lifecycle scripts in modern versions, so automatic teardown on `npm uninstall -g clawsmith` is not something npm provides as a package hook. citeturn132199search1
 
 ---
 
@@ -213,9 +227,10 @@ Defaults:
 ```text
 clawsmith/
 ├── clawsmith                # CLI entrypoint
-├── package.json             # npm-style package metadata + bin
+├── package.json             # npm-style bin + postinstall
 ├── skills/clawsmith/SKILL.md
 ├── src/cli.js               # Unified command router
+├── src/install.js           # Auto-starts daemon after install
 ├── scripts/clawsmith-daemon.mjs
 ├── scripts/start.sh
 ├── scripts/stop.sh

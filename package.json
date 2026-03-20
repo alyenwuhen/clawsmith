@@ -1,6 +1,6 @@
 {
   "name": "clawsmith",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The observability CLI for OpenClaw",
   "type": "module",
   "main": "src/index.js",
@@ -18,8 +18,11 @@
     "README.md"
   ],
   "scripts": {
+    "postinstall": "node ./src/install.js",
     "selftest": "bash ./scripts/selftest.sh",
-    "once": "bash ./scripts/once.sh"
+    "once": "bash ./scripts/once.sh",
+    "start": "node ./src/cli.js start",
+    "stop": "node ./src/cli.js stop"
   },
   "license": "MIT"
 }

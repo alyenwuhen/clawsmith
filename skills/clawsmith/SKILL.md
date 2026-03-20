@@ -1,33 +1,28 @@
 ---
 name: clawsmith
-version: 0.2.0
-description: "The observability CLI for OpenClaw, packaged as a skill bundle."
-tags: [openclaw, observability, tracing, monitoring, cli, daemon]
+version: 0.3.0
+description: "The observability CLI for OpenClaw, packaged as a skill bundle and npm command."
+tags: [openclaw, observability, tracing, monitoring, cli, daemon, npm]
 metadata: {"openclaw":{"emoji":"🧭"}}
 ---
 
 # clawsmith
 
-`clawsmith` is an OpenClaw **skill bundle with a built-in CLI**.
+`clawsmith` is an OpenClaw observability skill bundle with a built-in npm-style CLI.
 
-The user should interact with a single command surface:
+The intended user experience is:
 
 ```bash
-clawsmith start
+npm install -g clawsmith
 clawsmith status
-clawsmith session --list
-clawsmith cost --month
-clawsmith suggest
-clawsmith config --diag
 ```
 
-## What this skill provides
+## Install behavior
 
-- a unified `clawsmith` CLI
-- a daemon that scans local OpenClaw data
-- session and token summaries when present in local files
-- compaction and trace snapshots
-- lightweight memory operations on `MEMORY.md`
+On npm global install:
+- npm exposes the `clawsmith` executable through the package `bin` field
+- npm runs install lifecycle scripts for global installs too
+- `clawsmith` uses `postinstall` to auto-start the monitoring daemon immediately after installation. citeturn120983search2turn132199search4
 
 ## Core commands
 
@@ -71,14 +66,14 @@ clawsmith once
 clawsmith selftest
 ```
 
-## How the agent should use this skill
+## Agent behavior
 
-1. Prefer the `clawsmith` CLI over raw script paths.
-2. Run `clawsmith status` first when checking health.
-3. Run `clawsmith start` if monitoring is not active.
-4. Run `clawsmith selftest` after installation or migration.
-5. Summarize `clawsmith status`, `clawsmith context`, or `clawsmith config --diag` for the user.
+When helping the user inspect OpenClaw:
+1. prefer `clawsmith status`
+2. then `clawsmith context` or `clawsmith session --list`
+3. use `clawsmith config --diag` for deep environment checks
+4. use `clawsmith selftest` after installation problems or upgrades
 
 ## Boundary
 
-This bundle is **file-observability based**. It does not require runtime hook installation, but any metric not persisted by OpenClaw into local files can only be inferred or omitted.
+This distribution is file-observability based. It is designed to begin monitoring immediately after installation, but exact prompt-level and per-tool runtime tracing still depends on in-process instrumentation.
