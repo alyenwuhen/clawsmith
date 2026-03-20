@@ -1,11 +1,25 @@
 {
   "name": "clawsmith",
-  "version": "0.1.0",
-  "description": "LangSmith-style observability plugin for OpenClaw",
+  "version": "0.2.0",
+  "description": "The observability CLI for OpenClaw",
   "type": "module",
   "main": "src/index.js",
-  "license": "MIT",
+  "bin": {
+    "clawsmith": "./clawsmith"
+  },
+  "files": [
+    "clawsmith",
+    "src",
+    "scripts",
+    "skills",
+    "dashboard",
+    "test",
+    "openclaw.plugin.json",
+    "README.md"
+  ],
   "scripts": {
-    "selftest": "node ./test/selftest.mjs"
-  }
+    "selftest": "bash ./scripts/selftest.sh",
+    "once": "bash ./scripts/once.sh"
+  },
+  "license": "MIT"
 }

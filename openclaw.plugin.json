@@ -1,7 +1,7 @@
 {
   "id": "clawsmith",
   "name": "clawsmith",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Observability plugin for OpenClaw with LangSmith-style tracing and monitoring",
   "entry": "./src/index.js"
 }
