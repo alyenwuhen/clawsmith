@@ -1,79 +1,41 @@
 ---
 name: clawsmith
-version: 0.3.0
-description: "The observability CLI for OpenClaw, packaged as a skill bundle and npm command."
-tags: [openclaw, observability, tracing, monitoring, cli, daemon, npm]
-metadata: {"openclaw":{"emoji":"🧭"}}
+description: Monitor OpenClaw agent health, token usage, API cost, and context window in real time. Use when you need to check your own status, inspect context utilization, estimate API costs, review compaction events, or get optimization suggestions. Provides structured JSON output for programmatic self-monitoring.
+metadata: {"openclaw": {"emoji": "🦀", "homepage": "https://github.com/alyenwuhen/clawsmith"}}
 ---
 
 # clawsmith
 
-`clawsmith` is an OpenClaw observability skill bundle with a built-in npm-style CLI.
+Real-time observability for OpenClaw agents. Check health, token usage, API cost, context window, and optimization suggestions — all from the CLI.
 
-The intended user experience is:
+## Install
 
 ```bash
-npm install -g clawsmith
-clawsmith status
+npm install -g git+https://github.com/alyenwuhen/clawsmith.git
+clawsmith start
 ```
-
-## Install behavior
-
-On npm global install:
-- npm exposes the `clawsmith` executable through the package `bin` field
-- npm runs install lifecycle scripts for global installs too
-- `clawsmith` uses `postinstall` to auto-start the monitoring daemon immediately after installation. citeturn120983search2turn132199search4
 
 ## Core commands
 
+| Command | What it does |
+|---------|-------------|
+| `clawsmith status --json` | Full health snapshot |
+| `clawsmith cost --week --json` | API cost breakdown for the past week |
+| `clawsmith session --json` | Current session token timeline, turn by turn |
+| `clawsmith context --json` | Context window utilization and truncation warnings |
+| `clawsmith suggest --json` | Active optimization alerts with `ruleId` and `action` |
+| `clawsmith compacts --json` | List recent compaction events and lost content |
+| `clawsmith top` | Live auto-refreshing dashboard |
+| `clawsmith schema status` | Describe the JSON schema for status output |
+
+## Recommended self-check workflow
+
 ```bash
-# Daemon
-clawsmith start
-clawsmith stop
-
-# Status & context
-clawsmith status
-clawsmith context
-
-# Sessions
-clawsmith session
-clawsmith session --list
-clawsmith session --list --full
-
-# Cost
-clawsmith cost
-clawsmith cost --day
-clawsmith cost --month
-
-# Compact events
-clawsmith compacts
-clawsmith compacts --last 10
-
-# Memory
-clawsmith memory list
-clawsmith memory search "postgres"
-clawsmith memory add "prefer snake_case"
-clawsmith memory save-compact <id>
-
-# Suggestions
-clawsmith suggest
-
-# Diagnostics
-clawsmith config --diag
-
-# Verification
-clawsmith once
-clawsmith selftest
+clawsmith status --json
 ```
 
-## Agent behavior
-
-When helping the user inspect OpenClaw:
-1. prefer `clawsmith status`
-2. then `clawsmith context` or `clawsmith session --list`
-3. use `clawsmith config --diag` for deep environment checks
-4. use `clawsmith selftest` after installation problems or upgrades
-
-## Boundary
-
-This distribution is file-observability based. It is designed to begin monitoring immediately after installation, but exact prompt-level and per-tool runtime tracing still depends on in-process instrumentation.
+Key fields to act on:
+- `utilizationPct` ≥ 85 → compact soon or start a fresh session
+- `suggestions[].ruleId === "tools-truncation"` → TOOLS.md is being cut off
+- `suggestions[].ruleId === "cost-spike"` → today's spend is unusually high
+- `daemonRunning: false` → run `clawsmith start` to enable monitoring

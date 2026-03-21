@@ -1,169 +1,44 @@
 # clawsmith
 
-**The Observability CLI for OpenClaw**
+**Know exactly what your OpenClaw agent is doing.**
 
-See what your agent runs. Track what your sessions consume. Know when context starts leaking.
+Token usage. API cost. Context health. Smart alerts. All in one place — without touching a single line of OpenClaw's internals.
+
+This project is **adapted from [seekcontext/ClawProbe](https://github.com/seekcontext/ClawProbe)** under the MIT License.
 
 [Why clawsmith](#why-clawsmith) •
-[Features](#features) •
 [Quick Start](#quick-start) •
-[How It Works](#how-it-works) •
-[CLI Reference](#cli-reference) •
-[Configuration](#configuration)
+[Commands](#commands) •
+[Agent Integration](#agent-integration) •
+[Configuration](#configuration) •
+[How It Works](#how-it-works)
 
 ---
 
 ## Why clawsmith
 
-OpenClaw sessions generate local state, transcripts, token usage, compaction signals, and memory artifacts — but these are not easy to inspect from one consistent interface.
+Your OpenClaw agent lives inside a context window — burning tokens, compacting silently, spending your API budget. But you can't see any of it while it's happening.
 
-`clawsmith` gives you a single CLI surface for that observability layer.
+clawsmith watches OpenClaw's files in the background and gives you a real-time window into what your agent is actually doing.
 
-It focuses on **monitoring and tracing**, not evaluation.
-
----
-
-## Features
-
-### Auto-start on install
-
-Install `clawsmith`, and it immediately starts the monitoring daemon.
-
-```bash
-npm install -g clawsmith
-```
-
-After installation, the `clawsmith` executable is available on your PATH through the package `bin` field, and npm runs the package install lifecycle for global installs as well. citeturn120983search2turn132199search4
-
-### Daemon control
-
-```bash
-clawsmith start
-clawsmith stop
-```
-
-### Status & context
-
-```bash
-clawsmith status
-clawsmith context
-```
-
-### Sessions
-
-```bash
-clawsmith session
-clawsmith session --list
-clawsmith session --list --full
-```
-
-### Cost
-
-```bash
-clawsmith cost
-clawsmith cost --day
-clawsmith cost --month
-```
-
-### Compact events
-
-```bash
-clawsmith compacts
-clawsmith compacts --last 10
-```
-
-### Memory
-
-```bash
-clawsmith memory list
-clawsmith memory search "postgres"
-clawsmith memory add "prefer snake_case"
-clawsmith memory save-compact 1
-```
-
-### Suggestions & diagnostics
-
-```bash
-clawsmith suggest
-clawsmith config --diag
-```
-
-### Verification
-
-```bash
-clawsmith once
-clawsmith selftest
-```
+**No configuration required. Zero side effects. 100% local.**
 
 ---
 
 ## Quick Start
 
-### Install globally
-
 ```bash
-npm install -g clawsmith
-```
+npm install -g git+https://github.com/alyenwuhen/clawsmith.git
 
-That does three things:
-1. installs the `clawsmith` command
-2. runs `postinstall`
-3. auto-starts the daemon
-
-The daemon performs an immediate scan on boot, so monitoring starts right after installation.
-
-### First commands
-
-```bash
+clawsmith start
 clawsmith status
-clawsmith session --list
-clawsmith config --diag
 ```
+
+clawsmith auto-detects your OpenClaw installation. No API keys, no accounts, no telemetry.
 
 ---
 
-## How It Works
-
-`clawsmith` works in two layers:
-
-1. **CLI layer**
-   - the `clawsmith` executable dispatches all commands
-   - npm exposes it via the `bin` field on global install citeturn120983search2
-
-2. **Local observability layer**
-   - the daemon scans `~/.openclaw/agents/**`
-   - reads `sessions.json` and transcript `.jsonl` files
-   - writes health and trace snapshots into `~/.clawsmith/`
-
-### Output directory
-
-```text
-~/.clawsmith/
-├── daemon.pid
-├── daemon.log
-├── daemon.state.json
-├── health.json
-├── events.jsonl
-└── traces/
-```
-
-### What gets tracked
-
-- session index summaries
-- transcript-file scan snapshots
-- compaction-like events inferred from local transcripts
-- token totals when they are present in local session metadata
-- daemon-generated trace snapshots
-
-### Boundary
-
-This build is **file-observability based**. It is easier to deploy than a runtime-hook plugin, but exact per-tool spans and exact prompt capture require in-process instrumentation.
-
-npm no longer supports uninstall lifecycle scripts in modern versions, so automatic teardown on `npm uninstall -g clawsmith` is not something npm provides as a package hook. citeturn132199search1
-
----
-
-## CLI Reference
+## Commands
 
 ```bash
 # Daemon
@@ -171,11 +46,12 @@ clawsmith start               # Start background daemon
 clawsmith stop                # Stop daemon
 
 # Status & context
-clawsmith status              # Current session and scan summary
-clawsmith context             # Context and session breakdown
+clawsmith status              # Current session (tokens, model, compactions)
+clawsmith top                 # Live dashboard
+clawsmith context             # Context window breakdown
 
 # Sessions
-clawsmith session             # Active session details
+clawsmith session             # Active session details + turn timeline
 clawsmith session --list      # All sessions
 clawsmith session --list --full  # Full session keys (not truncated)
 
@@ -183,59 +59,75 @@ clawsmith session --list --full  # Full session keys (not truncated)
 clawsmith cost                # This week
 clawsmith cost --day          # Today
 clawsmith cost --month        # This month
+clawsmith cost --all          # All time
 
 # Compact events
 clawsmith compacts            # Last 5 compact events
 clawsmith compacts --last 10  # Last 10
 
 # Memory
-clawsmith memory list                      # List memory entries
-clawsmith memory search "postgres"         # Search memory
-clawsmith memory add "prefer snake_case"   # Add to memory
-clawsmith memory save-compact <id>         # Save from compact event
+clawsmith compacts --save <id>      # Save compacted content to MEMORY.md
 
 # Suggestions
 clawsmith suggest             # Show optimization suggestions
+clawsmith suggest --dismiss <rule-id>
+clawsmith suggest --reset-dismissed
 
 # Diagnostics
 clawsmith config --diag       # Full diagnostic dump
+clawsmith reset-db            # Rebuild local probe.db
+clawsmith schema status       # JSON output schema
+```
 
-# Verification
-clawsmith once                # Run a single scan
-clawsmith selftest            # Validate clawsmith output chain
+---
+
+## Agent Integration
+
+Every command supports `--json` for structured output.
+
+```bash
+clawsmith status --json
+clawsmith context --json
+clawsmith suggest --json
+clawsmith compacts --json
+clawsmith cost --week --json
 ```
 
 ---
 
 ## Configuration
 
-Environment variables:
-
-```bash
-OPENCLAW_HOME=~/.openclaw
-CLAWSMITH_SCAN_INTERVAL_MS=5000
-```
+Optional config at `~/.clawsmith/config.json`.
 
 Defaults:
-- OpenClaw directory: `~/.openclaw`
-- Clawsmith state directory: `~/.clawsmith`
+- OpenClaw dir: `~/.openclaw`
+- Clawsmith dir: `~/.clawsmith`
 
 ---
 
-## Structure
+## How It Works
 
-```text
-clawsmith/
-├── clawsmith                # CLI entrypoint
-├── package.json             # npm-style bin + postinstall
-├── skills/clawsmith/SKILL.md
-├── src/cli.js               # Unified command router
-├── src/install.js           # Auto-starts daemon after install
-├── scripts/clawsmith-daemon.mjs
-├── scripts/start.sh
-├── scripts/stop.sh
-├── scripts/status.sh
-├── scripts/once.sh
-├── scripts/selftest.sh
-└── test/selftest.mjs
-```
+clawsmith reads OpenClaw's existing files in the background — no code changes, no plugins, no hooks required.
+
+- Zero configuration
+- Zero side effects
+- Background daemon
+- SQLite-backed local observability DB
+- JSON transcript parsing
+- Compaction tracking
+- Cost estimation
+- Rule-based suggestions
+
+---
+
+## Privacy
+
+- 100% local
+- No telemetry
+- No accounts, no API keys
+
+---
+
+## License
+
+MIT. Derived from ClawProbe, with original MIT attribution preserved.
