@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs, { readFileSync } from "fs";
+import os from "os";
 import { Command } from "commander";
 import { resolveConfig, assertOpenClawExists, initConfigTemplate } from "./core/config.ts";
 import { dropAndResetDb } from "./core/db.ts";
@@ -65,8 +66,30 @@ program.command("context").description("Context window composition analysis").op
 program.command("suggest").description("Optimization suggestions").option("--agent <name>").option("--severity <level>").option("--dismiss <rule-id>").option("--reset-dismissed").option("--json").action(async (opts) => { const cfg = resolveConfig(); assertOpenClawExists(cfg); await runSuggest(cfg, { agent: opts.agent, severityFilter: opts.severity, dismiss: opts.dismiss, resetDismissed: opts.resetDismissed, json: opts.json }); });
 program.command("config").description("Show detected OpenClaw configuration").option("--json").option("--diag").action(async (opts) => {
   const cfg = resolveConfig();
-  if (opts.json) { console.log(JSON.stringify({ openclawDir: cfg.openclawDir, workspaceDir: cfg.workspaceDir, sessionsDir: cfg.sessionsDir, bootstrapMaxChars: cfg.bootstrapMaxChars, probeDir: cfg.probeDir, openclaw: cfg.openclaw }, null, 2)); return; }
-  console.log(`OpenClaw dir:      ${cfg.openclawDir}`); console.log(`Workspace:         ${cfg.workspaceDir}`); console.log(`Sessions:          ${cfg.sessionsDir}`); console.log(`Bootstrap max:     ${cfg.bootstrapMaxChars.toLocaleString()} chars`); console.log(`probe.db:          ${cfg.probeDir}/probe.db`);
+  const pidFile = path.join(cfg.probeDir, "daemon.pid");
+  let daemonRunning = false;
+  let pid: number | null = null;
+  if (fs.existsSync(pidFile)) {
+    try { pid = parseInt(fs.readFileSync(pidFile, "utf-8").trim(), 10); if (!isNaN(pid)) { process.kill(pid, 0); daemonRunning = true; } } catch {}
+  }
+  const diag = {
+    openclawDir: cfg.openclawDir,
+    workspaceDir: cfg.workspaceDir,
+    sessionsDir: cfg.sessionsDir,
+    bootstrapMaxChars: cfg.bootstrapMaxChars,
+    probeDir: cfg.probeDir,
+    probeDb: path.join(cfg.probeDir, "probe.db"),
+    daemonPid: pid,
+    daemonRunning,
+    openclawExists: fs.existsSync(cfg.openclawDir),
+    sessionsExists: fs.existsSync(cfg.sessionsDir),
+    workspaceExists: fs.existsSync(cfg.workspaceDir),
+    configPath: path.join(os.homedir(), ".clawsmith", "config.json"),
+    openclawConfigPath: path.join(cfg.openclawDir, "openclaw.json"),
+    openclaw: cfg.openclaw,
+  };
+  if (opts.json || opts.diag) { console.log(JSON.stringify(diag, null, 2)); return; }
+  console.log(`OpenClaw dir:      ${cfg.openclawDir}`); console.log(`Workspace:         ${cfg.workspaceDir}`); console.log(`Sessions:          ${cfg.sessionsDir}`); console.log(`Bootstrap max:     ${cfg.bootstrapMaxChars.toLocaleString()} chars`); console.log(`probe.db:          ${cfg.probeDir}/probe.db`); console.log(`Daemon:            ${daemonRunning ? `running (${pid})` : "stopped"}`);
 });
 program.command("top").description("Live dashboard").option("--agent <name>").option("--interval <seconds>", "Refresh interval in seconds (default: 2)").action(async (opts) => { const cfg = resolveConfig(); assertOpenClawExists(cfg); await runTop(cfg, opts); });
 program.command("schema [command]").description("Show the --json output schema for a command").action((commandName?: string) => { runSchema(commandName); });

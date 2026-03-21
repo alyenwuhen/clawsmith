@@ -1,6 +1,6 @@
 {
   "name": "clawsmith",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "OpenClaw observability CLI adapted from ClawProbe",
   "keywords": ["openclaw", "ai-agent", "context", "observability", "llm"],
   "license": "MIT",
@@ -8,6 +8,7 @@
   "files": ["src", "README.md", "LICENSE", "skills", "clawsmith", "tsconfig.json"],
   "bin": {"clawsmith": "./clawsmith"},
   "scripts": {
+    "postinstall": "node --import tsx ./src/install.ts",
     "start": "node --import tsx ./src/index.ts start",
     "selftest": "node --import tsx ./src/index.ts status --json"
   },
