@@ -60,7 +60,7 @@ clawhub install clawsmith
 
 Or tell your agent directly:
 
-> Read https://raw.githubusercontent.com/seekcontext/Clawsmith/main/skills/clawsmith/SKILL.md and follow the instructions to set up clawsmith self-monitoring.
+> Read https://github.com/alyenwuhen/Opensmith/tree/master/skills/clawsmith/SKILL.md and follow the instructions to set up clawsmith self-monitoring.
 
 Start a new OpenClaw session and the agent will automatically have access to `clawsmith` commands for self-monitoring. See [`skills/clawsmith/SKILL.md`](./skills/clawsmith/SKILL.md) for the full skill definition.
 
