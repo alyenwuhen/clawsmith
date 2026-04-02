@@ -374,15 +374,4 @@ Works with any OpenClaw version. Requires Node.js ≥ 22 · macOS or Linux (Wind
 
 ---
 
-## Contributing
 
-MIT licensed. Contributions welcome.
-
-```bash
-git clone https://github.com/seekcontext/Clawsmith
-cd Clawsmith && npm install && npm run dev
-```
-
----
-
-[MIT License](./LICENSE)
