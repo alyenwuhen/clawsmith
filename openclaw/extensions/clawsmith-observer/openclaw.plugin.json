@@ -1,0 +1,81 @@
+{
+  "id": "clawsmith-observer",
+  "name": "Clawsmith Observer",
+  "version": "0.1.0",
+  "description": "Auto-start clawsmith daemon, append monitor cards to outbound replies, and expose a lightweight dashboard.",
+  "type": "plugin",
+  "entry": "./index.js",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Global switch for this plugin."
+      },
+      "clawsmithBin": {
+        "type": "string",
+        "default": "clawsmith",
+        "description": "Path or command name for clawsmith binary."
+      },
+      "execTimeoutMs": {
+        "type": "number",
+        "default": 3000,
+        "description": "Timeout for each clawsmith command execution."
+      },
+      "autoStartDaemon": {
+        "type": "boolean",
+        "default": true,
+        "description": "Start clawsmith daemon automatically on gateway start when needed."
+      },
+      "autoAppendMonitorCard": {
+        "type": "boolean",
+        "default": true,
+        "description": "Append the latest turn summary to outbound messages via message_sending hook."
+      },
+      "appendIntervalSec": {
+        "type": "number",
+        "default": 0,
+        "description": "Fallback minimum interval per conversation when turn index is unavailable."
+      },
+      "channelAllowlist": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [],
+        "description": "If set, only these channels receive monitor cards."
+      },
+      "dashboardEnabled": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable dashboard HTTP route."
+      },
+      "dashboardBasePath": {
+        "type": "string",
+        "default": "/plugins/clawsmith",
+        "description": "Base path for dashboard and API."
+      },
+      "dashboardToken": {
+        "type": "string",
+        "default": "",
+        "description": "Optional token for dashboard access (?token=...)."
+      },
+      "openclawStateDir": {
+        "type": "string",
+        "default": "",
+        "description": "Optional explicit OpenClaw state dir (defaults to OPENCLAW_STATE_DIR or ~/.openclaw)."
+      },
+      "traceMaxEvents": {
+        "type": "number",
+        "default": 2400,
+        "description": "Maximum trace events returned by /api/trace."
+      },
+      "metricsTurnLimit": {
+        "type": "number",
+        "default": 120,
+        "description": "Maximum turns returned in metrics view."
+      }
+    }
+  }
+}

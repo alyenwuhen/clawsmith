@@ -1,0 +1,13 @@
+{
+  "name": "clawsmith-observer",
+  "version": "0.1.0",
+  "description": "OpenClaw plugin: auto-start clawsmith and append monitor cards",
+  "type": "module",
+  "main": "index.js",
+  "openclaw": {
+    "extensions": [
+      "./index.js"
+    ]
+  },
+  "license": "MIT"
+}
