@@ -356,7 +356,12 @@ function buildTraceRounds(trace) {
   }
 
   finishRound();
-  return rounds;
+  return [...rounds].sort((a, b) => {
+    const aKey = Number.isFinite(a.startMs) ? a.startMs : (Number.isFinite(a.endMs) ? a.endMs : 0);
+    const bKey = Number.isFinite(b.startMs) ? b.startMs : (Number.isFinite(b.endMs) ? b.endMs : 0);
+    if (aKey !== bKey) return bKey - aKey;
+    return asNumber(b.roundIndex, 0) - asNumber(a.roundIndex, 0);
+  });
 }
 
 function buildTraceNodes(trace, scopedEvents = null, round = null) {
