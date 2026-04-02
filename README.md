@@ -60,7 +60,7 @@ clawhub install clawsmith
 
 Or tell your agent directly:
 
-> Read https://raw.githubusercontent.com/seekcontext/Clawsmith/main/skills/clawsmith/SKILL.md and follow the instructions to set up clawsmith self-monitoring.
+> Read https://github.com/alyenwuhen/Clawsmith/blob/codex/clawsimth_web/skills/clawsmith/SKILL.md and follow the instructions to set up clawsmith self-monitoring.
 >
 > 请阅读 https://raw.githubusercontent.com/seekcontext/Clawsmith/main/skills/clawsmith/SKILL.md 并按照说明设置 clawsmith 自我监控。
 
